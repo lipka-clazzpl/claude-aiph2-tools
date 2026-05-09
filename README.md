@@ -2,9 +2,12 @@
 
 ## Co to jest
 
-Standalone'owy REPL Python prowadzący użytkownika przez questy kursu **AI Product Heroes 2** (AIPH2) w trybie **aktywnego uczenia** według 5 zasad: intuicja → konkret → why/tradeoff/pitfall → szersza perspektywa → pytanie sprawdzające. Każdy koncept i każde pytanie poboczne lądują jako **pełna karta incremental learning** (frontmatter + 11 sekcji body, z dosłownym cytatem ze źródła i rundą dialogu) w bazie `aiph2/learning/cards/`. Karty mają algorytm **SM-2** (powtórki rozłożone w czasie, ocena 0-5). Dodatkowo agent prowadzi **profil zainteresowań** — automatycznie podnosi priorytet tematów, do których użytkownik wraca, i obniża dla tematów oznaczonych "pomiń".
+Pythonowy REPL do **aktywnej nauki** materiałów kursu **AI Product Heroes 2**. Zamiast czytać slajdy biernie, przerabiasz je z agentem według pięciu kroków: **intuicja → konkret → why/tradeoff/pitfall → szersza perspektywa → pytanie sprawdzające**.
 
-Agent działa w **swoim własnym** procesie — nie współdzieli kontekstu z głównym Claude Code i nie konkuruje z innymi zadaniami użytkownika. Bazę kart dzieli z skillem `learning-aiph-quests`: karta zapisana tu w piątek wpadnie do due skilla we wtorek.
+- każdy koncept zapisuje się jako fiszka w `aiph2/learning/cards/`
+- powtórki rozłożone w czasie (algorytm **SM-2**, ocena 0–5)
+- profil zainteresowań sam podnosi priorytet tematów, do których wracasz
+- ta sama baza kart co skill `learning-aiph-quests` — karty są wymienne w obie strony
 
 ## Demo
 
