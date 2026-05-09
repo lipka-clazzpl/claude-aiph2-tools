@@ -118,4 +118,4 @@ aiph2/
 
 - System prompt: [`prompts/SYSTEM_PROMPT.md`](prompts/SYSTEM_PROMPT.md)
 - Sygnały zainteresowania: [`prompts/INTEREST_SIGNALS.md`](prompts/INTEREST_SIGNALS.md)
-- Skill alternatywny: [`aiph2/.claude/skills/learning-aiph-quests/SKILL.md`](../.claude/skills/learning-aiph-quests/SKILL.md)
+- Skill alternatywny: [`.claude/skills/learning-aiph-quests/SKILL.md`](.claude/skills/learning-aiph-quests/SKILL.md)
