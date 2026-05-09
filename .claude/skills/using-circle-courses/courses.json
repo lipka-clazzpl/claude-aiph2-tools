@@ -1,0 +1,31 @@
+{
+  "default": "aiph2",
+  "communities": {
+    "bravecourses": {
+      "base_url": "https://bravecourses.circle.so",
+      "label": "Brave Courses (Circle community hosting AIPH and other courses)"
+    }
+  },
+  "courses": {
+    "aiph2": {
+      "label": "AI Product Heroes 2",
+      "community": "bravecourses",
+      "space_group_slug": null,
+      "spaces": {
+        "announcements": "ogloszenia-aiph2",
+        "intros": "przywitaj-sie-aiph",
+        "chat": "czat-aiph2-bcb831",
+        "live_sessions": "sesje-live-aiph2",
+        "live_session_recordings": "nagrania-sesji-live-aiph-2",
+        "prework": "prework-ai-literacy-aiph2",
+        "your_certificate": "twoj-ai-product-heroes-prototype-aiph2",
+        "prototype_arena": "ai-prototypes-arena-aiph2",
+        "program_artifacts": "artefakty-programu-aiph2",
+        "deeper_discussions": "poglebione-dyskusje-aiph2",
+        "webinars_kb": "webinary-i-podcasty-baza-wiedzy-aiph2"
+      },
+      "lessons_path": "/courses",
+      "notes": "Sidebar in Polish (Ogłoszenia, Przywitaj się, Czat, etc.); keys above use English friendly names. 'lessons' lives under the top-level /courses route on Circle, not under /c/<slug>/, so it's tracked separately as lessons_path. Discovered 2026-05-06 from the bravecourses.circle.so home sidebar."
+    }
+  }
+}
