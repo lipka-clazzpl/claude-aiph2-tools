@@ -29,3 +29,7 @@ list:
 # Hint do priming kontekstu w Claude Code
 prime:
     @echo "Run /prime in Claude Code in this dir"
+
+# Symuluj learn-agenta w nowej sesji Claude Code (Sonnet 4.6 1M + SYSTEM_PROMPT + /prime)
+metacc:
+    claude --model 'sonnet[1m]' --append-system-prompt "$(cat prompts/SYSTEM_PROMPT.md)" /prime
