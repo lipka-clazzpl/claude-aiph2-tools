@@ -41,6 +41,8 @@ class RoundCard(BaseModel):
     pytanie_sprawdzajace: str = ""
     element_review: str = ""
     powiazane: str = ""
+    wikipedia_branches: list[dict] = Field(default_factory=list)
+    # each dict: {"title": str, "url": str, "summary": str, "lang": "pl"|"en"}
 
 
 class InterestTopic(BaseModel):

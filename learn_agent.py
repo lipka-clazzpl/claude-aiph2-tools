@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """AIPH2 Active Learning Agent — interaktywny REPL z aktywnym uczeniem,
-incremental learning (SM-2) i profilem zainteresowań."""
+uczeniem inkrementalnym (SM-2) i profilem zainteresowań."""
 
 from __future__ import annotations
 
@@ -70,9 +70,10 @@ SLASH_HELP_ROWS: list[tuple[str, str]] = [
     ("/learn-web <url>", "Pobierz tresc z URL i ucz sie"),
     ("/learn-quest <slug>", "Przeprowadz quest dnia (np. w1d2-2026-04-22-fundamenty)"),
     ("/due", "Pokaz karty zaplanowane na dzis"),
-    ("/review", "Sesja powtorek (front -> tworz odpowiedz -> back -> ocena 0-5)"),
+    ("/review", "Sesja powtorek (przod -> tworz odpowiedz -> tyl -> ocena 0-5)"),
     ("/cards [filtr]", "Lista wszystkich kart (opcjonalny filtr po quest/tag/typie)"),
     ("/interest [topic priority]", "Czytaj profil zainteresowań / ustaw priorytet manualnie"),
+    ("/wiki <haslo>", "Pociagnij galaz wiedzy z Wikipedii (PL z fallbackiem EN)"),
     ("/save-anki [nazwa]", "Eksport kart do CSV gotowego dla Anki"),
     ("/stats", "Statystyki sesji"),
     ("/clear", "Wyczysc historie rozmowy"),
@@ -106,7 +107,7 @@ def display_help():
 
 
 def display_tool_use(block: ToolUseBlock):
-    console.print(Panel(block.name, title="Tool Called", border_style="cyan", style="dim"))
+    console.print(Panel(block.name, title="Wywolane narzedzie", border_style="cyan", style="dim"))
 
 
 def display_tool_result(block: ToolResultBlock, tool_name: Optional[str] = None):
@@ -122,7 +123,7 @@ def display_tool_result(block: ToolResultBlock, tool_name: Optional[str] = None)
         content = str(block.content)
     if len(content) > 1500:
         content = content[:1497] + "..."
-    title = f"{status} {tool_name} Result" if tool_name else f"{status} Tool Result"
+    title = f"{status} Wynik {tool_name}" if tool_name else f"{status} Wynik narzedzia"
     console.print(Panel(content, title=title, border_style=color, expand=False))
 
 
@@ -130,7 +131,7 @@ def display_thinking(block: ThinkingBlock):
     console.print(
         Panel(
             Text(block.thinking, style="italic purple"),
-            title="[yellow]Thinking[/yellow]",
+            title="[yellow]Mysli agenta[/yellow]",
             border_style="dim",
             expand=False,
         )
@@ -148,7 +149,7 @@ def display_session_stats(repl: "LearningAgentREPL"):
     table.add_row("Karty dodane", str(repl.cards_added))
     table.add_row("Karty powtorzone", str(repl.cards_reviewed))
     if repl.session_id:
-        table.add_row("Session ID", repl.session_id)
+        table.add_row("ID sesji", repl.session_id)
     if repl.last_cost is not None:
         table.add_row("Ostatni koszt", f"${repl.last_cost:.6f}")
     console.print(table)
@@ -192,6 +193,7 @@ class LearningAgentREPL:
             "mcp__learning__list_cards",
             "mcp__learning__export_anki",
             "mcp__learning__load_learning_material",
+            "mcp__learning__wikipedia_lookup",
             "Read",
             "WebFetch",
             "WebSearch",
@@ -383,9 +385,9 @@ async def _cmd_review(repl: LearningAgentREPL, args: str) -> bool:
     else:
         prompt = (
             "Wywolaj due_today aby zobaczyc karty do powtorki. Dla kazdej karty: "
-            "pokaz tylko Kontekst, Cytat zrodlowy i Pytanie sprawdzajace (front). "
+            "pokaz tylko Kontekst, Cytat zrodlowy i Pytanie sprawdzajace (przod). "
             "Poczekaj az sprobuje odpowiedziec. Dopiero wtedy pokaz Sedno, Korekte "
-            "i Element review (back). Zapytaj o ocene 0-5 i wywolaj record_review."
+            "i Element review (tyl). Zapytaj o ocene 0-5 i wywolaj record_review."
         )
     await repl.process_query(prompt, display="/review")
     return True
@@ -455,6 +457,19 @@ async def _cmd_exit(repl: LearningAgentREPL, args: str) -> bool:
     return False
 
 
+async def _cmd_wiki(repl: LearningAgentREPL, args: str) -> bool:
+    if not args:
+        console.print("[yellow]Uzycie: /wiki <haslo>  np. /wiki Lean Startup[/yellow]")
+        return True
+    prompt = (
+        f"Wywołaj wikipedia_lookup z title='{args}', lang='auto', branches=3, mode='full'. "
+        "Pokaż streszczenie i 3 powiązane gałęzie z URLami. "
+        "NIE zapisuj karty — to manualny lookup, nie pętla nauczania."
+    )
+    await repl.process_query(prompt, display=f"/wiki {args}")
+    return True
+
+
 SLASH_COMMANDS = {
     "/learn": _cmd_learn,
     "/learn-file": _cmd_learn_file,
@@ -464,6 +479,7 @@ SLASH_COMMANDS = {
     "/review": _cmd_review,
     "/cards": _cmd_cards,
     "/interest": _cmd_interest,
+    "/wiki": _cmd_wiki,
     "/save-anki": _cmd_save_anki,
     "/stats": _cmd_stats,
     "/clear": _cmd_clear,
@@ -549,9 +565,9 @@ async def _run_repl(initial_command: Optional[str] = None) -> int:
 
 def _parse_args(argv: list[str]) -> tuple[Optional[str], argparse.Namespace]:
     parser = argparse.ArgumentParser(prog="learn_agent")
-    parser.add_argument("--quest", metavar="SLUG", help="Auto-uruchom /learn-quest <slug>")
-    parser.add_argument("--review", action="store_true", help="Auto-uruchom /review")
-    parser.add_argument("--learn", metavar="TOPIC", help="Auto-uruchom /learn <topic>")
+    parser.add_argument("--quest", metavar="SLUG", help="Uruchom automatycznie /learn-quest <slug>")
+    parser.add_argument("--review", action="store_true", help="Uruchom automatycznie /review")
+    parser.add_argument("--learn", metavar="TOPIC", help="Uruchom automatycznie /learn <topic>")
     args = parser.parse_args(argv)
     initial = None
     if args.quest:

@@ -23,6 +23,7 @@ _HEADING_TO_FIELD: dict[str, str] = {
     "Pytanie sprawdzające (active recall)": "pytanie_sprawdzajace",
     "Element review (na następną powtórkę)": "element_review",
     "Powiązane karty": "powiazane",
+    "Powiązane (Wikipedia)": "wikipedia_branches",
     "Notatki własne": "notatki_wlasne",
 }
 
@@ -89,6 +90,14 @@ def build_body(rc: RoundCard) -> str:
 
     parts.append("\n## Powiązane karty")
     parts.append(_render(rc.powiazane, "powiazane"))
+
+    if rc.wikipedia_branches:
+        parts.append("\n## Powiązane (Wikipedia)")
+        for branch in rc.wikipedia_branches:
+            title = branch.get("title", "")
+            url = branch.get("url", "")
+            summary = branch.get("summary", "")
+            parts.append(f"- [{title}]({url}) — {summary}")
 
     parts.append("\n## Notatki własne")
     parts.append("_(puste — uzupełnij przy powtórce)_")

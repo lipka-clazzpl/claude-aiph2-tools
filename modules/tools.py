@@ -15,6 +15,7 @@ of letting half-formed cards land on disk.
 """
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 from typing import Any
@@ -59,6 +60,18 @@ async def add_card_full(args: dict[str, Any]) -> dict[str, Any]:
         tags_csv = args.get("tags") or ""
         tags = [t.strip() for t in tags_csv.split(",") if t.strip()]
 
+        wiki_branches_raw = (args.get("wikipedia_branches") or "").strip()
+        wiki_branches: list[dict] = []
+        if wiki_branches_raw:
+            try:
+                parsed = json.loads(wiki_branches_raw)
+                if isinstance(parsed, list):
+                    for item in parsed:
+                        if isinstance(item, dict) and "title" in item and "url" in item:
+                            wiki_branches.append(item)
+            except (json.JSONDecodeError, TypeError):
+                pass  # invalid JSON → treat as empty
+
         rc = RoundCard(
             title=args["title"],
             type=args.get("type", "concept"),
@@ -77,16 +90,19 @@ async def add_card_full(args: dict[str, Any]) -> dict[str, Any]:
             pytanie_sprawdzajace=pytanie,
             element_review=args.get("element_review", "") or "",
             powiazane=args.get("powiazane", "") or "",
+            wikipedia_branches=wiki_branches,
         )
 
         body = card_io.build_body(rc)
 
-        # Persist source_path/quote in frontmatter via `extra` so they are
-        # queryable through frontmatter.load without re-parsing the body.
-        extras = {
+        # Persist source_path/quote/wikipedia_branches in frontmatter via `extra`
+        # so they are queryable without re-parsing the body.
+        extras: dict[str, Any] = {
             "source_path": rc.source_path,
             "source_quote": rc.source_quote,
         }
+        if rc.wikipedia_branches:
+            extras["wikipedia_branches"] = rc.wikipedia_branches
 
         card = sm2.write_new_card(
             title=rc.title,
@@ -110,7 +126,7 @@ async def add_card_full(args: dict[str, Any]) -> dict[str, Any]:
 
 _add_card_full_tool = tool(
     "add_card_full",
-    "Zapisuje pełną kartę incremental learning (frontmatter + 11 sekcji body) z weryfikacją cytatu i pytania sprawdzającego. Odrzuca karty bez source_quote lub bez pytania sprawdzającego.",
+    "Zapisuje pełną kartę uczenia inkrementalnego (frontmatter + 11 sekcji treści) z weryfikacją cytatu i pytania sprawdzającego. Odrzuca karty bez source_quote lub bez pytania sprawdzającego.",
     {
         "title": str,
         "type": str,
@@ -127,6 +143,7 @@ _add_card_full_tool = tool(
         "pytanie_sprawdzajace": str,
         "element_review": str,
         "powiazane": str,
+        "wikipedia_branches": str,
         "priority": int,
         "difficulty": str,
     },
@@ -268,7 +285,7 @@ async def read_interest_profile(args: dict[str, Any]) -> dict[str, Any]:
 
 _read_interest_profile_tool = tool(
     "read_interest_profile",
-    "Zwraca pełny profil zainteresowań (frontmatter + body) jako tekst. Auto-tworzy pusty profil jeśli plik nie istnieje.",
+    "Zwraca pełny profil zainteresowań (frontmatter + treść) jako tekst. Automatycznie tworzy pusty profil jeśli plik nie istnieje.",
     {},
 )(read_interest_profile)
 
@@ -394,12 +411,12 @@ async def due_today(args: dict[str, Any]) -> dict[str, Any]:
             )
         return _ok("\n".join(lines))
     except Exception as e:  # noqa: BLE001
-        return _err(f"Błąd listy due: {e}")
+        return _err(f"Błąd listy zaległych: {e}")
 
 
 _due_today_tool = tool(
     "due_today",
-    "Zwraca karty zaległe do powtórki dziś. Sortuje po priority rosnąco (0 = top), potem po next_review.",
+    "Zwraca karty zaległe do powtórki dziś. Sortuje po priorytecie rosnąco (0 = na górze), potem po next_review.",
     {},
 )(due_today)
 
@@ -441,7 +458,7 @@ async def record_review(args: dict[str, Any]) -> dict[str, Any]:
 
 _record_review_tool = tool(
     "record_review",
-    "Zapisuje ocenę powtórki (0-5) i przelicza harmonogram SM-2. Ocena <3 to lapse (interval reset do 1 dnia).",
+    "Zapisuje ocenę powtórki (0-5) i przelicza harmonogram SM-2. Ocena <3 to zapomnienie (interwał resetowany do 1 dnia).",
     {
         "card_id": str,
         "grade": int,
@@ -486,7 +503,7 @@ async def list_cards(args: dict[str, Any]) -> dict[str, Any]:
 
 _list_cards_tool = tool(
     "list_cards",
-    "Listuje karty z opcjonalnymi filtrami: quest (prefix), tag (exact), type (exact), query (substring w title/body).",
+    "Listuje karty z opcjonalnymi filtrami: quest (przedrostek), tag (dokładne dopasowanie), type (dokładne dopasowanie), query (podciąg w tytule/treści).",
     {
         "quest": str,
         "tag": str,
@@ -602,7 +619,7 @@ async def export_anki(args: dict[str, Any]) -> dict[str, Any]:
 
 _export_anki_tool = tool(
     "export_anki",
-    "Eksportuje karty do CSV (TAB-separated) zgodnego z Anki. scope: 'all' | 'due' | 'quest:<nazwa>'. Front = Kontekst+Cytat+Pytanie. Back = Sedno+Korekta+Element review.",
+    "Eksportuje karty do CSV (rozdzielonego tabulatorami) zgodnego z Anki. scope: 'all' | 'due' | 'quest:<nazwa>'. Przód = Kontekst+Cytat+Pytanie. Tył = Sedno+Korekta+Element review.",
     {
         "filename": str,
         "scope": str,
@@ -649,9 +666,87 @@ async def load_learning_material(args: dict[str, Any]) -> dict[str, Any]:
 
 _load_learning_material_tool = tool(
     "load_learning_material",
-    "Ładuje pojedynczy plik (tekst lub .docx) do nauki. Auto-detekcja typu po rozszerzeniu. Skraca do 80 000 znaków.",
+    "Ładuje pojedynczy plik (tekst lub .docx) do nauki. Automatyczna detekcja typu po rozszerzeniu. Skraca do 80 000 znaków.",
     {"file_path": str},
 )(load_learning_material)
+
+
+# ---------------------------------------------------------------------------
+# Tool 11: wikipedia_lookup
+# ---------------------------------------------------------------------------
+
+async def wikipedia_lookup(args: dict[str, Any]) -> dict[str, Any]:
+    from modules.wikipedia import lookup as _wiki_lookup
+
+    title = (args.get("title") or "").strip()
+    if not title:
+        return _err("Brak parametru 'title'.")
+
+    lang = (args.get("lang") or "auto").strip()
+    if lang not in {"auto", "pl", "en"}:
+        return _err(f"Nieprawidłowa wartość 'lang': {lang!r}. Dozwolone: auto, pl, en.")
+
+    try:
+        branches = int(args.get("branches", 3))
+    except (TypeError, ValueError):
+        branches = 3
+    branches = max(0, min(8, branches))
+
+    mode = (args.get("mode") or "full").strip()
+    if mode not in {"full", "summary-only", "branches-only"}:
+        return _err(f"Nieprawidłowa wartość 'mode': {mode!r}. Dozwolone: full, summary-only, branches-only.")
+
+    try:
+        result = await _wiki_lookup(title, lang=lang, branches=branches, mode=mode)
+    except Exception as e:  # noqa: BLE001
+        return _err(f"Błąd pobierania z Wikipedii: {e}")
+
+    if not result.get("ok"):
+        notes = result.get("notes", "")
+        return _err(f"Wikipedia nie ma hasła '{title}'. {notes}".strip())
+
+    lines: list[str] = []
+
+    summary = result.get("summary")
+    if summary:
+        lines.append(f"### Streszczenie: {summary['title']}")
+        lines.append(f"*Źródło: [{summary['url']}]({summary['url']}) ({summary['lang'].upper()})*")
+        if result.get("notes"):
+            lines.append(f"*{result['notes']}*")
+        lines.append("")
+        lines.append(summary.get("extract", ""))
+
+    result_branches = result.get("branches", [])
+    if result_branches:
+        lines.append("")
+        lines.append("### Powiązane hasła")
+        for b in result_branches:
+            lines.append(f"- **[{b['title']}]({b['url']})** — {b.get('summary', '')}")
+
+    markdown_part = "\n".join(lines)
+
+    # JSON block for the agent to parse into wikipedia_branches
+    branches_json = json.dumps(result_branches, ensure_ascii=False)
+    full_output = f"{markdown_part}\n\n--- JSON ---\n{branches_json}"
+
+    if len(full_output) > 6000:
+        full_output = full_output[:5997] + "..."
+
+    return _ok(full_output)
+
+
+_wikipedia_lookup_tool = tool(
+    "wikipedia_lookup",
+    "Pobiera streszczenie i powiązane hasła z Wikipedii (pl z fallbackiem na en). "
+    "Używaj do rozszerzenia sekcji 'Szersza perspektywa' i generowania gałęzi wiedzy. "
+    "Wynik zawiera markdown + blok JSON z listą gałęzi (do wikipedia_branches w add_card_full).",
+    {
+        "title": str,
+        "lang": str,
+        "branches": int,
+        "mode": str,
+    },
+)(wikipedia_lookup)
 
 
 # ---------------------------------------------------------------------------
@@ -672,6 +767,7 @@ learning_tools_server = create_sdk_mcp_server(
         _list_cards_tool,
         _export_anki_tool,
         _load_learning_material_tool,
+        _wikipedia_lookup_tool,
     ],
 )
 
@@ -688,4 +784,5 @@ __all__ = [
     "list_cards",
     "export_anki",
     "load_learning_material",
+    "wikipedia_lookup",
 ]

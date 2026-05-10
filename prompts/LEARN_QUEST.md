@@ -8,13 +8,13 @@ Slug: `{slug}`
 
 1. Wywołaj `read_interest_profile`. Zapamiętaj listę tematów + ich priorytety.
 2. Jeśli profil pusty → traktuj sesję jako neutralną (priorytet domyślny 50 dla każdego nowego konceptu).
-3. Jeśli któryś z tematów dnia ma w profilu `priority 0-30` — sygnalizuj sobie, że pisze się **rozbudowane** karty.
+3. Jeśli któryś z tematów dnia ma w profilu priorytet 0-30 (`priority` w frontmatter) — sygnalizuj sobie, że pisze się **rozbudowane** karty.
 
 ## Krok 1 — Wczytanie materiałów questa
 
-1. Wywołaj `load_quest_materials(slug='{slug}')`. Tool zwraca skonsolidowany tekst z `transcripts/`, `slides/`, `materials/*.docx`.
-2. Jeśli tool zwrócił błąd ("Nie znaleziono katalogu questa") → przyznaj się i spytaj użytkownika o poprawny slug LUB sprawdź `Glob` po `aiph2/weeks/*` żeby zaproponować dostępne slugi.
-3. Jeśli tool zwrócił uciętą zawartość ("truncated") → ostrzeż użytkownika i zaproponuj kontynuację bez pełnego materiału, lub doczytanie z konkretnych plików przez `load_learning_material`.
+1. Wywołaj `load_quest_materials(slug='{slug}')`. Narzędzie zwraca skonsolidowany tekst z `transcripts/`, `slides/`, `materials/*.docx`.
+2. Jeśli narzędzie zwróciło błąd ("Nie znaleziono katalogu questa") → przyznaj się i spytaj użytkownika o poprawny slug LUB sprawdź `Glob` po `aiph2/weeks/*` żeby zaproponować dostępne slugi.
+3. Jeśli narzędzie zwróciło uciętą zawartość ("truncated") → ostrzeż użytkownika i zaproponuj kontynuację bez pełnego materiału, lub doczytanie z konkretnych plików przez `load_learning_material`.
 
 ## Krok 2 — Plan sesji
 
@@ -42,11 +42,12 @@ Dla **każdego** konceptu z planu, zgodnie z 5 zasadami z `SYSTEM_PROMPT.md`:
 
 1. **Intuicja** — pytanie otwarte. "Co dla ciebie znaczy `<koncept>`? Do czego ze swojej pracy byś go przypiął?" Czekaj na odpowiedź.
 2. **Definicja** — krótka, własnymi słowami, jednym akapitem.
-3. **Konkret** — case z kursu (Airbnb, Zappos, Konrad/kalkulator, Superhuman, Shopify) lub realistyczna sytuacja z jego firmy.
-4. **Why + Tradeoff + Pitfall** — minimum jeden punkt z każdej kategorii.
-5. **Szersza perspektywa** — porównanie z Lean Startup / JTBD / Continuous Discovery / Working Backwards.
-6. **Pytanie sprawdzające** (active recall) — aplikacyjne, nie odtwórcze.
-7. **Reakcja na odpowiedź:**
+3. **Konkret** — przypadek z kursu (Airbnb, Zappos, Konrad/kalkulator, Superhuman, Shopify) lub realistyczna sytuacja z jego firmy.
+4. **Krok 3.5 — Wikipedia** — wywołaj `wikipedia_lookup(title=<koncept>, lang='auto', branches=3, mode='full')`. Z `extract` destyluj 1-2 zdania do sekcji `Szersza perspektywa`. Z `branches` wybierz 2-3 najtrafniejsze gałęzie (te które są naprawdę powiązane, nie generic) i zapamiętaj je do zapisu karty. Jeśli Wikipedia zwróciła błąd — pomiń cicho i przejdź dalej z pustą listą gałęzi.
+5. **Why + Tradeoff + Pitfall** — minimum jeden punkt z każdej kategorii.
+6. **Szersza perspektywa** — porównanie z Lean Startup / JTBD / Continuous Discovery / Working Backwards, wzbogacone 1-2 zdaniami z Wikipedii (jeśli lookup był udany).
+7. **Pytanie sprawdzające** (aktywne przypominanie) — aplikacyjne, nie odtwórcze.
+8. **Reakcja na odpowiedź:**
    - poprawna → krótkie potwierdzenie + Krok 5 (zapis karty) + następny koncept
    - częściowa → pochwała + dopytanie o brakujące elementy
    - błędna → wyjaśnienie + wskazówka + ponowne pytanie
@@ -66,7 +67,7 @@ Wywołaj `add_card_full` z pełnym zestawem pól. Argumenty obowiązkowe:
 - `title` — haczyk, odróżniający
 - `type` — `concept` / `framework` / `pitfall` / `example` / `principle` / `tool` / `side-question`
 - `quest` — slug questa (`{slug}`)
-- `tags` — comma-separated, np. "super-loop,framework,fundamenty"
+- `tags` — rozdzielone przecinkami, np. "super-loop,framework,fundamenty"
 - `source_path` — `weeks/{slug}/transcripts/transcript.md` lub konkretny `.docx`
 - `source_quote` — **dosłowny cytat** ze źródła (system odrzuca karty bez)
 - `kontekst`, `sedno`, `konkret`
@@ -74,7 +75,8 @@ Wywołaj `add_card_full` z pełnym zestawem pól. Argumenty obowiązkowe:
 - `runda_dialogu` — `Agent zapytał: ... / Odpowiedziałeś: ... / Korekta: ...`
 - `pytanie_sprawdzajace` — system odrzuca karty bez
 - `element_review` — alternatywne pytanie / mnemonik na następną powtórkę
-- `priority` — 0-100, na podstawie profilu zainteresowań (0-30 wysokie, 31-70 standard, 71-100 niskie)
+- `wikipedia_branches` — JSON-encoded lista gałęzi z Kroku 3.5, np. `'[{"title":"Lean Startup","url":"https://...","summary":"...","lang":"pl"}]'`. Jeśli Wikipedia nie miała hasła → przekaż `'[]'`.
+- `priority` — 0-100, na podstawie profilu zainteresowań (0-30 wysokie, 31-70 standardowe, 71-100 niskie)
 
 Po zapisie krótkie potwierdzenie: `Zapisano: <id-karty>`.
 
