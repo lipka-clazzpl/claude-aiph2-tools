@@ -77,6 +77,8 @@ SLASH_HELP_ROWS: list[tuple[str, str]] = [
     ("/save-anki [nazwa]", "Eksport kart do CSV gotowego dla Anki"),
     ("/stats", "Statystyki sesji"),
     ("/clear", "Wyczysc historie rozmowy"),
+    ("/tree <card_id>", "karta + jej cloze'e"),
+    ("/parent <card_id>", "karta i jej rodzic"),
     ("/help", "Pokaz te pomoc"),
     ("/exit", "Wyjdz"),
 ]
@@ -194,6 +196,8 @@ class LearningAgentREPL:
             "mcp__learning__export_anki",
             "mcp__learning__load_learning_material",
             "mcp__learning__wikipedia_lookup",
+            "mcp__learning__read_card",
+            "mcp__learning__add_clozes",
             "Read",
             "WebFetch",
             "WebSearch",
@@ -457,6 +461,36 @@ async def _cmd_exit(repl: LearningAgentREPL, args: str) -> bool:
     return False
 
 
+async def _cmd_tree(repl: LearningAgentREPL, args: str) -> bool:
+    card_id = args.strip()
+    if not card_id:
+        console.print("[yellow]Uzycie: /tree <card_id>[/yellow]")
+        return True
+    prompt = (
+        f"Wywolaj read_card(card_id='{card_id}') i pokaz te karte. "
+        f"Nastepnie wywolaj list_cards(parent_id='{card_id}') i pokaz jej "
+        f"cloze'y jako wypunktowana liste (id + front). "
+        f"Format: najpierw pelna karta, ponizej 'Cloze'e: [lista]'."
+    )
+    await repl.process_query(prompt, display=f"/tree {card_id}")
+    return True
+
+
+async def _cmd_parent(repl: LearningAgentREPL, args: str) -> bool:
+    card_id = args.strip()
+    if not card_id:
+        console.print("[yellow]Uzycie: /parent <card_id>[/yellow]")
+        return True
+    prompt = (
+        f"Wywolaj read_card(card_id='{card_id}'). "
+        f"Jesli karta ma parent_id w frontmatterze, wywolaj tez "
+        f"read_card(card_id=parent_id) i pokaz karte-rodzica (Tytul + Sedno). "
+        f"Jesli parent_id brak, pokaz tylko te karte."
+    )
+    await repl.process_query(prompt, display=f"/parent {card_id}")
+    return True
+
+
 async def _cmd_wiki(repl: LearningAgentREPL, args: str) -> bool:
     if not args:
         console.print("[yellow]Uzycie: /wiki <haslo>  np. /wiki Lean Startup[/yellow]")
@@ -479,6 +513,8 @@ SLASH_COMMANDS = {
     "/review": _cmd_review,
     "/cards": _cmd_cards,
     "/interest": _cmd_interest,
+    "/tree": _cmd_tree,
+    "/parent": _cmd_parent,
     "/wiki": _cmd_wiki,
     "/save-anki": _cmd_save_anki,
     "/stats": _cmd_stats,

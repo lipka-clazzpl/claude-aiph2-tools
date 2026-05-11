@@ -23,7 +23,7 @@ from typing import Any
 from claude_agent_sdk import tool, create_sdk_mcp_server
 
 from modules import card_io, interest, sm2
-from modules.models import RoundCard
+from modules.models import RoundCard, ClozeCard
 
 
 # Buffers in-flight Runda dialogu rounds keyed by session id ("current" by default).
@@ -489,6 +489,10 @@ async def list_cards(args: dict[str, Any]) -> dict[str, Any]:
         if query:
             cards = [c for c in cards if query in c.title.lower() or query in c.body.lower()]
 
+        parent = (args.get("parent_id") or "").strip()
+        if parent:
+            cards = [c for c in cards if (c.meta.get("parent_id") or "") == parent]
+
         if not cards:
             return _ok("Brak kart pasujących do filtrów.")
 
@@ -503,12 +507,13 @@ async def list_cards(args: dict[str, Any]) -> dict[str, Any]:
 
 _list_cards_tool = tool(
     "list_cards",
-    "Listuje karty z opcjonalnymi filtrami: quest (przedrostek), tag (dokładne dopasowanie), type (dokładne dopasowanie), query (podciąg w tytule/treści).",
+    "Listuje karty z opcjonalnymi filtrami: quest (przedrostek), tag (dokładne dopasowanie), type (dokładne dopasowanie), query (podciąg w tytule/treści), parent_id (dokładne dopasowanie).",
     {
         "quest": str,
         "tag": str,
         "type": str,
         "query": str,
+        "parent_id": str,
     },
 )(list_cards)
 
@@ -553,6 +558,22 @@ def _csv_escape(s: str) -> str:
     return s.replace("\r", " ").replace("\t", " ").replace("\n", "<br>")
 
 
+def _extract_section(body: str, heading: str) -> str:
+    """Returns text of the ## {heading} section up to the next ## or end of string."""
+    lines = body.splitlines()
+    collecting = False
+    result: list[str] = []
+    for line in lines:
+        if line.strip() == f"## {heading}":
+            collecting = True
+            continue
+        if collecting:
+            if line.startswith("## "):
+                break
+            result.append(line)
+    return "\n".join(result).strip()
+
+
 async def export_anki(args: dict[str, Any]) -> dict[str, Any]:
     try:
         filename = (args.get("filename") or "anki-export").strip() or "anki-export"
@@ -578,6 +599,16 @@ async def export_anki(args: dict[str, Any]) -> dict[str, Any]:
 
         rows: list[str] = []
         for c in cards:
+            if c.type == "cloze":
+                front_text = _extract_section(c.body, "Pytanie")
+                back_text  = _extract_section(c.body, "Odpowiedź")
+                rows.append("\t".join([
+                    _csv_escape(front_text),
+                    _csv_escape(back_text),
+                    _csv_escape(",".join(c.tags)),
+                ]))
+                continue
+
             parsed = card_io.parse_body(c.body)
             kontekst = parsed.get("kontekst", "") or ""
             sedno = parsed.get("sedno", "") or ""
@@ -750,6 +781,130 @@ _wikipedia_lookup_tool = tool(
 
 
 # ---------------------------------------------------------------------------
+# Tool 12: read_card
+# ---------------------------------------------------------------------------
+
+
+async def read_card(args: dict[str, Any]) -> dict[str, Any]:
+    try:
+        card_id = (args.get("card_id") or "").strip()
+        if not card_id:
+            return _err("Brak card_id.")
+        path = sm2.CARDS_DIR / f"{card_id}.md"
+        if not path.exists():
+            return _err(f"Nie znaleziono karty: {card_id}")
+        card = sm2.load_card(path)
+        parent_line = ""
+        pid = card.meta.get("parent_id")
+        if pid:
+            parent_line = f"\n**Karta-rodzic:** {pid}"
+        header = (
+            f"**ID:** {card.id}\n"
+            f"**Tytuł:** {card.title}\n"
+            f"**Type:** {card.type}\n"
+            f"**Quest:** {card.quest or '-'}\n"
+            f"**Tags:** {', '.join(card.tags) or '-'}\n"
+            f"**SM-2:** next={card.sm2.next_review} reps={card.sm2.reps} ease={card.sm2.ease:.2f}"
+            f"{parent_line}"
+        )
+        return _ok(f"{header}\n\n---\n\n{card.body}")
+    except Exception as e:  # noqa: BLE001
+        return _err(f"Błąd odczytu karty: {e}")
+
+
+_read_card_tool = tool(
+    "read_card",
+    "Ładuje pełną kartę (frontmatter + body) po card_id. Używany do nawigacji: /tree, /parent, podgląd kontekstu podczas review.",
+    {"card_id": str},
+)(read_card)
+
+
+# ---------------------------------------------------------------------------
+# Tool 13: add_clozes
+# ---------------------------------------------------------------------------
+
+
+async def add_clozes(args: dict[str, Any]) -> dict[str, Any]:
+    try:
+        import json as _json
+        parent_id = (args.get("parent_id") or "").strip()
+        if not parent_id:
+            return _err("Brak parent_id.")
+        parent_path = sm2.CARDS_DIR / f"{parent_id}.md"
+        if not parent_path.exists():
+            return _err(f"Nie znaleziono karty-rodzica: {parent_id}")
+        parent = sm2.load_card(parent_path)
+
+        # Inherit from parent
+        source_path = (args.get("source_path") or parent.meta.get("source") or "").strip()
+        tags_csv = args.get("tags") or ",".join(parent.tags)
+        tags = [t.strip() for t in tags_csv.split(",") if t.strip()]
+        if "cloze" not in tags:
+            tags.append("cloze")
+        priority = int(args.get("priority") or parent.meta.get("priority") or 50)
+        difficulty = (args.get("difficulty") or parent.meta.get("difficulty") or "medium").strip()
+
+        clozes_raw = args.get("clozes") or "[]"
+        try:
+            clozes_list = _json.loads(clozes_raw)
+        except _json.JSONDecodeError as e:
+            return _err(f"'clozes' musi być JSON-listą obiektów {{front, back}}: {e}")
+        if not isinstance(clozes_list, list) or not clozes_list:
+            return _err("'clozes': oczekiwana niepusta lista obiektów {front, back}.")
+
+        created_ids: list[str] = []
+        n = len(clozes_list)
+        for idx, c in enumerate(clozes_list, 1):
+            front = (c.get("front") or "").strip()
+            back = (c.get("back") or "").strip()
+            if not front or not back:
+                return _err(f"Cloze #{idx}: 'front' i 'back' są wymagane i niepuste.")
+            cc = ClozeCard(
+                title=f"{parent.title} [cloze {idx}/{n}]",
+                parent_id=parent_id,
+                front=front,
+                back=back,
+                source_path=source_path,
+                tags=tags,
+                priority=priority,
+                difficulty=difficulty,
+            )
+            body = card_io.build_cloze_body(cc)
+            card = sm2.write_new_card(
+                title=cc.title,
+                body=body,
+                type="cloze",
+                source=cc.source_path,
+                quest=parent.quest or None,
+                tags=cc.tags,
+                difficulty=cc.difficulty,
+                priority=cc.priority,
+                extra={"parent_id": parent_id},
+            )
+            created_ids.append(card.id)
+
+        sm2.export_index()
+        return _ok(f"Zapisano {len(created_ids)} cloze'ów: " + ", ".join(created_ids))
+
+    except Exception as e:  # noqa: BLE001
+        return _err(f"Błąd zapisu cloze'ów: {e}")
+
+
+_add_clozes_tool = tool(
+    "add_clozes",
+    "Tworzy N kart 'cloze' (proste Q&A, bez limitu) podpiętych przez parent_id. 'clozes' to JSON-lista {front, back}. Tagi/priority/difficulty dziedziczą z rodzica gdy puste.",
+    {
+        "parent_id": str,
+        "clozes": str,       # JSON: [{"front": "...", "back": "..."}, ...]
+        "source_path": str,
+        "tags": str,
+        "priority": int,
+        "difficulty": str,
+    },
+)(add_clozes)
+
+
+# ---------------------------------------------------------------------------
 # Server assembly
 # ---------------------------------------------------------------------------
 
@@ -768,6 +923,8 @@ learning_tools_server = create_sdk_mcp_server(
         _export_anki_tool,
         _load_learning_material_tool,
         _wikipedia_lookup_tool,
+        _read_card_tool,
+        _add_clozes_tool,
     ],
 )
 
@@ -785,4 +942,6 @@ __all__ = [
     "export_anki",
     "load_learning_material",
     "wikipedia_lookup",
+    "read_card",
+    "add_clozes",
 ]

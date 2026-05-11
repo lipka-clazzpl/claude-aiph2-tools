@@ -45,6 +45,18 @@ class RoundCard(BaseModel):
     # each dict: {"title": str, "url": str, "summary": str, "lang": "pl"|"en"}
 
 
+class ClozeCard(BaseModel):
+    """Atomowa karta Q&A / cloze deletion. NIE powtarza tekstu z karty-rodzica."""
+    title: str         # np. "Customer Curiosity — nawyk [cloze]"
+    parent_id: str     # id karty bogatej (wymagane)
+    front: str         # pytanie lub sentence-z-blankiem
+    back: str          # odpowiedź (jeden fakt)
+    source_path: str = ""   # dziedziczone z parenta przy zapisie
+    tags: list[str] = Field(default_factory=list)
+    priority: int = 50
+    difficulty: str = "medium"
+
+
 class InterestTopic(BaseModel):
     name: str
     priority: int = 50  # 0-100, lower = higher priority

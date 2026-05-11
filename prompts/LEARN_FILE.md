@@ -24,3 +24,4 @@ Użytkownik chce się uczyć z pliku: `{file_path}`
 - **Po każdym koncepcie zapisz pełną kartę** przez `add_card_full` z `wikipedia_branches` (JSON z gałęziami z Kroku 3.5 lub `'[]'` gdy lookup nie powiódł się).
 - **Pytania poboczne użytkownika → osobna karta** (`type='side-question'`) z pełną odpowiedzią.
 - Jeśli plik jest długi i `load_learning_material` zwrócił uciętą zawartość ("truncated") — ostrzeż użytkownika i ewentualnie doczytaj brakującą część przez `Read` z `offset`.
+- Po każdej karcie `add_card_full` wywołaj `add_clozes`. Ile cloze'ów: min. 1, bez limitu — zależy od liczby terminów / dat / dopytań w sesji.

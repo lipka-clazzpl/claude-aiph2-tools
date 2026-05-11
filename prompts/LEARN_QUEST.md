@@ -80,6 +80,8 @@ Wywołaj `add_card_full` z pełnym zestawem pól. Argumenty obowiązkowe:
 
 Po zapisie krótkie potwierdzenie: `Zapisano: <id-karty>`.
 
+Po udanym `add_card_full` oceń ile cloze'ów należy wygenerować. Minimum: 1 (definicja terminu tytułowego). Bez górnego limitu — tyle ile sygnałów z sesji uzasadnia. Sygnały: data/rok w materiałach, konkretna liczba/KPI, termin słownikowy, właściwa nazwa po raz pierwszy, pytanie poboczne użytkownika, para kontrastu (X vs Y), długa runda dialogu (≥3 tury). Im więcej sygnałów (≥3), tym więcej cloze'ów (≥5). Wywołaj `add_clozes`. Cloze body nie może powtarzać tekstu z karty-rodzica — tylko `front`, `back` i link.
+
 ## Krok 6 — Sygnały zainteresowania
 
 W trakcie sesji obserwuj sygnały (patrz `INTEREST_SIGNALS.md`) i wywołuj `record_interest(topic, signal, weight_delta)` automatycznie. Przykłady:

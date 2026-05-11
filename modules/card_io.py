@@ -8,7 +8,12 @@ already prepends the title from the frontmatter when the card is rendered.
 """
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from modules.models import RoundCard
+
+if TYPE_CHECKING:
+    from modules.models import ClozeCard
 
 
 # Section heading -> RoundCard attr (for parse_body)
@@ -25,6 +30,8 @@ _HEADING_TO_FIELD: dict[str, str] = {
     "Powiązane karty": "powiazane",
     "Powiązane (Wikipedia)": "wikipedia_branches",
     "Notatki własne": "notatki_wlasne",
+    "Pytanie": "cloze_front",
+    "Odpowiedź": "cloze_back",
 }
 
 # Optional sections render `_(brak)_` when empty; required ones pass through as-is
@@ -144,3 +151,20 @@ def parse_body(text: str) -> dict:
 
     flush()
     return out
+
+
+def build_cloze_body(cc: "ClozeCard") -> str:
+    """Minimalistyczne body: tylko Pytanie / Odpowiedź / link do rodzica.
+    NIE zawiera Sedno, Kontekst, Why ani żadnego tekstu z karty-rodzica.
+    """
+    return "\n".join([
+        "## Pytanie",
+        cc.front.strip(),
+        "",
+        "## Odpowiedź",
+        cc.back.strip(),
+        "",
+        "## Karta-rodzic",
+        f"[[{cc.parent_id}]]",
+        "",
+    ])

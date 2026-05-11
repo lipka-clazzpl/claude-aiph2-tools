@@ -12,6 +12,7 @@ from __future__ import annotations
 import asyncio
 import datetime as dt
 import importlib
+import json as _json
 import os
 import shutil
 import sys
@@ -104,6 +105,9 @@ async def main() -> int:
         record_review,
         record_interest,
         export_anki,
+        list_cards,
+        read_card,
+        add_clozes,
     )
 
     # Sanity: env applied
@@ -199,6 +203,75 @@ async def main() -> int:
         f"guard did not fire on empty pytanie_sprawdzajace: {bad2_res}"
     )
     print("[smoke] guard ok: empty pytanie_sprawdzajace rejected")
+
+    # ---------- 7. add_clozes happy path (8 cloze — brak górnego limitu) ----------
+    big_batch = [
+        {"front": f"Pytanie numer {i}?", "back": f"Odpowiedz {i}"}
+        for i in range(1, 9)
+    ]
+    cloze_res = await add_clozes({
+        "parent_id": card_id,
+        "clozes": _json.dumps(big_batch),
+    })
+    assert cloze_res.get("is_error") is not True, f"add_clozes failed: {cloze_res}"
+    all_files = list((TEST_DIR / "cards").glob("*.md"))
+    cloze_cards = [
+        frontmatter.load(p) for p in all_files
+        if frontmatter.load(p).metadata.get("type") == "cloze"
+    ]
+    assert len(cloze_cards) == 8, f"expected 8 cloze cards, got {len(cloze_cards)}"
+    for cc in cloze_cards:
+        m = cc.metadata
+        assert m.get("parent_id") == card_id, f"wrong parent_id: {m.get('parent_id')}"
+        assert "sm2" in m and m["sm2"].get("next_review"), f"missing sm2: {m}"
+        assert "cloze" in (m.get("tags") or []), f"tag 'cloze' missing: {m.get('tags')}"
+        body = cc.content
+        assert "## Pytanie" in body, f"missing ## Pytanie in cloze body"
+        assert "## Odpowiedź" in body, f"missing ## Odpowiedź in cloze body"
+        assert "## Karta-rodzic" in body, f"missing ## Karta-rodzic in cloze body"
+        # Body must not contain parent context text
+        assert "Kontekst testowy" not in body, "cloze body should NOT copy parent context"
+    print("[smoke] add_clozes ok, 8 cloze cards, no parent text leaked")
+
+    # ---------- 8. list_cards filter parent_id ----------
+    lc = await list_cards({"parent_id": card_id})
+    assert lc.get("is_error") is not True
+    lc_text = lc["content"][0]["text"]
+    assert "cloze" in lc_text.lower(), f"no cloze in list_cards parent filter: {lc_text[:200]}"
+    print("[smoke] list_cards parent_id ok")
+
+    # ---------- 9. read_card ----------
+    rc = await read_card({"card_id": card_id})
+    assert rc.get("is_error") is not True, f"read_card failed: {rc}"
+    rc_text = rc["content"][0]["text"]
+    assert card_id in rc_text, f"card_id not in read_card output"
+    assert "Sedno" in rc_text or "Pytanie sprawdzające" in rc_text, "read_card seems wrong"
+    print("[smoke] read_card ok")
+
+    # read_card for cloze — should show parent_id line
+    first_cloze_id = cloze_cards[0].metadata["id"]
+    rc2 = await read_card({"card_id": first_cloze_id})
+    assert rc2.get("is_error") is not True
+    rc2_text = rc2["content"][0]["text"]
+    assert card_id in rc2_text, "parent_id not shown in read_card output for cloze"
+    print("[smoke] read_card cloze (parent_id visible) ok")
+
+    # ---------- 10. export_anki cloze branch ----------
+    exp2 = await export_anki({"filename": "smoke-cloze", "scope": "all"})
+    assert exp2.get("is_error") is not True
+    csv2 = (TEST_DIR / "exports" / "smoke-cloze.csv").read_text(encoding="utf-8")
+    rows_all = [r for r in csv2.strip().splitlines() if r.strip()]
+    # 1 rich card + 8 cloze = 9 rows
+    assert len(rows_all) == 9, f"expected 9 rows, got {len(rows_all)}: {rows_all}"
+    print(f"[smoke] export_anki cloze branch ok ({len(rows_all)} rows)")
+
+    # ---------- 11. Guard: empty front ----------
+    bcr = await add_clozes({
+        "parent_id": card_id,
+        "clozes": _json.dumps([{"front": "", "back": "x"}]),
+    })
+    assert bcr.get("is_error") is True, "guard nie zadziałał na pusty front"
+    print("[smoke] guard ok: empty cloze front rejected")
 
     print("PASS")
     return 0

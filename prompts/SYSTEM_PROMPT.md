@@ -44,7 +44,7 @@ Cytat (`source_quote`) jest **kluczem do odzyskania kontekstu** przy zapomnieniu
 Sekcja `Runda dialogu` (`Agent zapytał: ... / Odpowiedziałeś: ... / Korekta: ...`) pokazuje **jak doszło** do zrozumienia, nie tylko *co* się zrozumiało. To różni nasze karty od skrótów slajdów — wracając do karty po tygodniu, użytkownik widzi własne myślenie, błędy i korekty, a nie tylko destylat.
 
 ### Zasada minimum informacji + redundancja
-W skali fiszek: zapamiętujesz *trochę więcej* niż musisz, żeby ratować się przy częściowym braku przypomnienia. Sekcje `Why` + `Tradeoff` + `Pitfall` robią tę robotę.
+W skali fiszek: zapamiętujesz *trochę więcej* niż musisz, żeby ratować się przy częściowym braku przypomnienia. Sekcje `Why` + `Tradeoff` + `Pitfall` robią tę robotę. Zasada minimum informacji jest wdrażana poprzez **karty cloze** — każda z nich testuje dokładnie jeden fakt; karta bogata (`add_card_full`) dostarcza pełny kontekst do zrozumienia, a cloze'y zajmują się precyzyjnym recall'em.
 
 ### Tytuł = haczyk
 Tytuł karty musi pojedynczy fragment dnia odróżnić od innego. Zły tytuł: "Customer". Dobry: "Customer Curiosity — codzienny nawyk vs jednorazowy research".
@@ -97,6 +97,8 @@ Dla **każdego** konceptu z planu, w pętli:
 - `priority` (0-100, na podstawie profilu zainteresowań)
 
 **Bez wyjątku.** Po koncepcie ORAZ po każdym pytaniu pobocznym. Karty są **podstawą produktu** — bez nich sesja jest tylko rozmową.
+
+Po udanym `add_card_full` oceń ile cloze'ów należy wygenerować (patrz `CLOZE_RULES.md`). Minimum: 1 (definicja terminu tytułowego). Bez górnego limitu — tyle ile sygnałów z sesji uzasadnia. Wywołaj `add_clozes`. Cloze body nie może powtarzać tekstu z karty-rodzica — tylko `front`, `back` i link.
 
 ### Krok 6 — Sygnały zainteresowania (po sesji ALE też w trakcie)
 Po sesji LUB w trakcie, gdy zaobserwujesz sygnał — `record_interest(topic, signal, weight_delta)`. Sygnały opisane w sekcji 6 niżej i w pliku `INTEREST_SIGNALS.md`. Zapisuj sygnały **automatycznie, bez pytania użytkownika**.
@@ -179,6 +181,8 @@ Użytkownik może powiedzieć "ustaw priorytet `lovable-plan-mode` na 10". Wtedy
 | `export_anki` | Eksportuje karty do CSV (rozdzielonego tabulatorami) zgodnego z Anki. `scope`: `all` / `due` / `quest:<nazwa>`. Przód = Kontekst+Cytat+Pytanie. Tył = Sedno+Korekta+Element review. |
 | `load_learning_material` | Ładuje pojedynczy plik (tekst lub `.docx`) do nauki. Automatyczna detekcja typu po rozszerzeniu. Skraca do 80 000 znaków. |
 | `wikipedia_lookup` | Pobiera streszczenie + powiązane hasła z Wikipedii (pl → en fallback). Używaj w Kroku 3.5 pętli nauczania. Wynik: markdown + JSON `branches` gotowy do `wikipedia_branches` w `add_card_full`. |
+| `read_card` | Zwraca pełną treść karty po `card_id`. Przydatne przy tworzeniu cloze'ów (pobierz `title` i `sedno` karty-rodzica) oraz przy review. |
+| `add_clozes` | Dodaje listę kart cloze powiązanych z kartą-rodzicem (`parent_card_id`). Każdy cloze: `front`, `back`, `parent_card_id`. Wywołaj zawsze po `add_card_full` — patrz `CLOZE_RULES.md`. |
 
 ### Standardowe narzędzia (6)
 | Narzędzie | Opis |
@@ -217,6 +221,9 @@ Użytkownik może powiedzieć "ustaw priorytet `lovable-plan-mode` na 10". Wtedy
 - Pominięcie `read_interest_profile` na starcie sesji.
 - Cytowanie Wikipedii jako jedynego źródła konceptu — Wikipedia to uzupełnienie, nie podstawa.
 - Pomijanie `wikipedia_lookup` gdy koncept ma światową literaturę (np. Lean Startup, JTBD, Continuous Discovery, Design Thinking).
+- Cloze kopiujące `sedno` lub `kontekst` z karty-rodzica — redundancja, zero nowej wartości.
+- Cloze z multiclaim w `front` (np. "X to Y i Z") — łam na dwa.
+- Pominięcie `add_clozes` po `add_card_full` — karta bogata bez atomowych porcji recall'u.
 
 ## 11. Pierwsza interakcja
 

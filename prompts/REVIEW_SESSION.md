@@ -12,6 +12,13 @@ Użytkownik chce powtórzyć karty zaległe na dziś. Realizujesz **aktywne przy
 
 Dla **każdej** karty z listy zaległych:
 
+### 2.0. Branch po type
+
+**Sprawdź `type` karty przed wyświetleniem przodu.**
+
+- `type ∈ {concept, framework, side-question, pitfall, example, principle, tool}` → standardowy flow (kroki 2a–2e).
+- `type = cloze` → **uproszczony flow 2c-cloze** poniżej.
+
 ### 2a. Przód karty (aktywne przypominanie)
 
 Pokaż **TYLKO**:
@@ -74,6 +81,35 @@ Element review (na następną powtórkę):
 ```
 
 **Element review** zmienia kąt / mnemonik / przykład na następną iterację — żeby przy lapsie nie wracać dokładnie tym samym pytaniem. Jeśli karta wraca z tym samym brakiem 2-3 razy, to znak, że trzeba ją przeformułować lub dodać wizualny mnemonik.
+
+### 2c-cloze. Cloze — prosty flow
+
+Wyświetl przód karty:
+
+```
+=== KARTA <id> [cloze] ===
+
+<front>
+```
+
+Zaproś użytkownika: „Spróbuj odpowiedzieć. Gdy gotowy: wpisz odpowiedź lub 'pokaż'."
+
+Po próbie odpowiedzi pokaż:
+
+```
+=== ODPOWIEDŹ ===
+
+<back>
+
+↑ p — karta-rodzic (<parent_id>)   t — drzewo (rodzic + rodzeństwo)
+```
+
+**Soft-shortcuty:**
+- Jeśli użytkownik wpisze `p` lub `parent` — wywołaj `read_card(card_id=parent_id)` i pokaż Tytuł + Sedno. Następnie wróć do pytania o ocenę.
+- Jeśli użytkownik wpisze `t` lub `tree` — wywołaj `read_card(card_id=parent_id)` + `list_cards(parent_id=parent_id)` i pokaż drzewo (rodzic + lista cloze'ów). Wróć do pytania o ocenę.
+- Jeśli użytkownik wpisze ocenę 0–5 — przejdź do `record_review` jak zawsze.
+
+Ocena 0–5 → `record_review` jak zawsze.
 
 ### 2d. Ocena 0-5 (skala SuperMemo)
 
@@ -160,3 +196,4 @@ Po wszystkich kartach:
 - Pokazywanie gałęzi Wikipedii **przed** oceną — zaburza aktywne przypominanie (gałęzie pojawiają się dopiero w 2f, po 2d).
 - Robienie więcej niż 2 gałęzi w jednej sesji review — czas zżarty, zostaw resztę na kolejną sesję.
 - Zapisywanie karty `wikipedia-branch` bez `source_quote` — użyj `extract` z lookup jako cytatu źródłowego.
+- Wyświetlanie 11 sekcji dla `type=cloze` — łamie *minimum information principle*. Karta cloze ma tylko `front` i `back`.
