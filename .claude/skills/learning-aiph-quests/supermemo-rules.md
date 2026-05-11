@@ -29,7 +29,7 @@ Tutaj: **co stosujemy w tym skillu**, bo nie wszystkie reguły są 1:1 użyteczn
     nawet po 6 miesiącach.
 11. **Zredundowane → łatwiejsze do zapamiętania** — w skali fiszek to znaczy: zapamiętujesz
     *trochę więcej* niż musisz, żeby ratować się przy częściowym braku przypomnienia.
-    Sekcja "Why" + "Tradeoff" robi tę robotę.
+    Sekcja "Powód" + "Kompromis" robi tę robotę.
 12. **Źródła** — zawsze pole `source` w frontmatter. Inaczej w przyszłości nie zweryfikujesz.
 13. **Daty w frontmatter** — `created`, `last_review`, `next_review` to historia karty.
 14. **Priorytety** — `difficulty` (`easy/medium/hard`) wpływa na to, które karty robisz najpierw,

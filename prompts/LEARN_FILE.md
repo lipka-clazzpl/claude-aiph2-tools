@@ -18,7 +18,7 @@ Użytkownik chce się uczyć z pliku: `{file_path}`
 ## Pamiętaj
 
 - Nie pokazuj całego pliku na raz — prezentuj fragment po fragmencie.
-- Każdemu konceptowi poświęć osobny krok (intuicja → konkret → **Wikipedia (Krok 3.5)** → why/tradeoff/pitfall → perspektywa → pytanie sprawdzające).
+- Każdemu konceptowi poświęć osobny krok (intuicja → konkret → **Wikipedia (Krok 3.5)** → powód/kompromis/pułapka → perspektywa → pytanie sprawdzające).
 - **Krok 3.5 — Wikipedia**: wywołaj `wikipedia_lookup(title=<koncept>, lang='auto', branches=3, mode='full')` między Konkret a Why. Patrz §5a w `SYSTEM_PROMPT.md` — pełna polityka, zakres użycia i obsługa błędów.
 - **ZAWSZE kończ pytaniem sprawdzającym.** NIE kontynuuj bez poprawnej odpowiedzi.
 - **Po każdym koncepcie zapisz pełną kartę** przez `add_card_full` z `wikipedia_branches` (JSON z gałęziami z Kroku 3.5 lub `'[]'` gdy lookup nie powiódł się).

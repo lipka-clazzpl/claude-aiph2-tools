@@ -6,7 +6,7 @@ Build a **standalone Python REPL agent** in `aiph2/learn-agent/` that walks the 
 
 The agent is modeled on `building-specialized-agents/source/apps/custom_9_learning_agent` (Claude Agent SDK + Rich terminal REPL) but extends it on three axes:
 
-1. **Card schema** — instead of `{question, answer, difficulty}` strings, every card is a full markdown section with frontmatter (id, source, sm2 state, priority/interest, tags) and body sections: `Kontekst`, `Sedno`, `Konkret`, `Why/Tradeoff/Pitfall`, `Szersza perspektywa`, `Cytat źródłowy` (verbatim from transcript/slides), `Runda dialogu` (the actual exchange: agent's question → user's answer → expert correction), `Pytanie sprawdzające`, `Element review` (mnemonic/follow-up for next review), `Powiązane karty`, `Notatki własne`.
+1. **Card schema** — instead of `{question, answer, difficulty}` strings, every card is a full markdown section with frontmatter (id, source, sm2 state, priority/interest, tags) and body sections: `Kontekst`, `Sedno`, `Konkret`, `Dlaczego (Powód/Kompromis/Pułapka)`, `Szersza perspektywa`, `Cytat źródłowy` (verbatim from transcript/slides), `Runda dialogu` (the actual exchange: agent's question → user's answer → expert correction), `Pytanie sprawdzające`, `Element review` (mnemonic/follow-up for next review), `Powiązane karty`, `Notatki własne`.
 2. **Storage** — cards land in the existing shared `aiph2/learning/cards/` base (not a per-app folder) so the SM-2 algorithm operates on one cross-week deck, fully compatible with the existing `learning-aiph-quests` skill scripts.
 3. **Interest profile** — a writable `learning/interest-profile.md` (frontmatter list of topics with `priority: 0..100`, modeled on SuperMemo's priority queue). The agent infers interest from dwell, repeat questions, follow-ups; nudges priorities; and uses them to (a) order due cards, (b) decide whether to expand or compress card sections.
 
@@ -189,7 +189,7 @@ inside the pager (no slash, just keystrokes):
 
 **Why share `aiph2/learning/` with the skill instead of carving a new deck?** SM-2 cross-week recall is the whole point. A card created here on day 5 should fall due during a skill-driven review on day 12. The skill's `sm2_lib.py` already operates on `learning/cards/`; we vendor a *thin copy* of that lib (so the agent has zero runtime dep on the skill scripts) but read/write the same files. Cards written by the agent are indistinguishable from cards written by `add_card.py`.
 
-**Card schema extension — backward-compatible.** Existing skill cards (3 of them in `aiph2/learning/cards/`) have body sections: Kontekst, Sedno, Konkret, Why/Tradeoff/Pitfall, Szersza perspektywa, Pytanie sprawdzające, Powiązane karty, Notatki własne. We **add three optional sections** to the body template:
+**Card schema extension — backward-compatible.** Existing skill cards (3 of them in `aiph2/learning/cards/`) have body sections: Kontekst, Sedno, Konkret, Dlaczego (Powód/Kompromis/Pułapka), Szersza perspektywa, Pytanie sprawdzające, Powiązane karty, Notatki własne. We **add three optional sections** to the body template:
 
 - `## Cytat źródłowy` — verbatim quote from transcript/slide/docx with file:line reference (SuperMemo's "reference" propagation, on the front of the card)
 - `## Runda dialogu` — `**Agent zapytał:** ...` / `**Odpowiedziałeś:** ...` / `**Korekta / dopowiedzenie:** ...` (preserves the actual learning round; addresses user's "review element również, nie tylko końcowe odpowiedzi")
@@ -376,7 +376,7 @@ Smoke check: `uv run python -c "from modules.sm2 import SM2State, write_new_card
 **Odpowiedziałeś:** {user_a}
 **Korekta / dopowiedzenie:** {expert_correction}
 
-## Dlaczego (Why + Tradeoffs + Pitfalls)
+## Dlaczego
 {why_tradeoff_pitfall}
 
 ## Szersza perspektywa

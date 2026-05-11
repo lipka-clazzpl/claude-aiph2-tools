@@ -4,7 +4,7 @@
 
 Dodaj do agenta drugi format karty — **cloze / Q&A** — wzorowany na [SuperMemo cloze deletion](https://help.supermemo.org/wiki/Glossary:Cloze_deletion). Po każdej rundzie nauki konceptu, oprócz dotychczasowej bogatej karty 11-sekcyjnej (`add_card_full`), agent generuje adaptywną liczbę atomowych Q&A — tyle ile potrzeba zależnie od bogactwa sesji, liczby dopytań i niejasnych terminów. Każde Q&A to samodzielna karta `type=cloze` z własnym harmonogramem SM-2, podpięta przez `parent_id` do karty-rodzica.
 
-Karty cloze są celowo minimalistyczne i **nie powtarzają tekstu z karty-rodzica** — ich jedyną rolą jest atomowy recall konkretnego faktu plus szybka nawigacja po drzewie w terminalu. Bogaty kontekst (Why/Tradeoff/Konkret) zawsze zostaje w karcie-rodzicu i jest dostępny przez skróty terminalowe.
+Karty cloze są celowo minimalistyczne i **nie powtarzają tekstu z karty-rodzica** — ich jedyną rolą jest atomowy recall konkretnego faktu plus szybka nawigacja po drzewie w terminalu. Bogaty kontekst (Dlaczego/Konkret) zawsze zostaje w karcie-rodzicu i jest dostępny przez skróty terminalowe.
 
 ## Objective
 
@@ -31,7 +31,7 @@ Obecnie każda runda IL produkuje *jedną* dużą kartę o 11 sekcjach. Świetni
 
 **D2 — Schemat „prosty Q&A", nie tylko klasyczny cloze ze składnią `{{c1::...}}`.** Schemat `front + back` obsłuży oba style: agent może zbudować `front="Customer Curiosity to ___ nawyk"` (cloze-style) lub `front="Co to Outcome w OST?"` (otwarte Q&A). Bez parsera markerów, bez splittingu.
 
-**D3 — Cloze body jest celowo puste ze strony kontekstu.** Karta cloze NIE powtarza Sedna, Kontekstu, Why ani żadnego innego tekstu z karty-rodzica. Sekcje body to: `## Pytanie`, `## Odpowiedź`, `## Karta-rodzic`. Nic więcej. Cel: minimalna redundancja, zero "ściągawki" — cloze wymusza czysty recall, a kontekst jest dostępny przez nawigację.
+**D3 — Cloze body jest celowo puste ze strony kontekstu.** Karta cloze NIE powtarza Sedna, Kontekstu, Dlaczego ani żadnego innego tekstu z karty-rodzica. Sekcje body to: `## Pytanie`, `## Odpowiedź`, `## Karta-rodzic`. Nic więcej. Cel: minimalna redundancja, zero "ściągawki" — cloze wymusza czysty recall, a kontekst jest dostępny przez nawigację.
 
 **D4 — Liczba cloze'ów nie jest z góry ograniczona.** Agent sam decyduje ile wygenerować na podstawie sygnałów z sesji (patrz sekcja „Triggery"). Dla prostego konceptu bez dopytań — może to być 2. Dla konceptu z datami, specjalistyczną terminologią i kilkoma pytaniami użytkownika — może to być 10-15. Arbitralny limit w toolze zostaje usunięty. Guard zostaje tylko na `front`/`back` niepuste i `parent_id` istniejący.
 
@@ -163,7 +163,7 @@ Repo nie ma `.claude/agents/team/*.md`, więc wszystkie role to `general-purpose
   ```python
   def build_cloze_body(cc: ClozeCard) -> str:
       """Minimalistyczne body: tylko Pytanie / Odpowiedź / link do rodzica.
-      NIE zawiera Sedno, Kontekst, Why ani żadnego tekstu z karty-rodzica.
+      NIE zawiera Sedno, Kontekst, Dlaczego ani żadnego tekstu z karty-rodzica.
       """
       return "\n".join([
           "## Pytanie",

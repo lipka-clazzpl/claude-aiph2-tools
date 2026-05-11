@@ -23,7 +23,7 @@ framework programistyczny" na "framework produktowy / proces / decyzja / KPI".
   hipotezy**. Przykład: zamiast "metryka A poprawia się o X%", powiedz "wskaźnik zwrotów spada z 38%
   do 32% po 6 tygodniach".
 
-## 3. Dlaczego (Why + Tradeoffs + Pitfalls)
+## 3. Dlaczego (Powód + Kompromis + Pułapka)
 - Zawsze wyjaśniaj **DLACZEGO** dany framework działa. Co by się stało bez niego?
 - Pokazuj **kompromisy**: np. "shipowanie małymi batchami daje szybki feedback, ale wymaga
   feature flags i kosztu inżynieryjnego — w 5-osobowym zespole może być za drogo".
@@ -59,7 +59,7 @@ framework programistyczny" na "framework produktowy / proces / decyzja / KPI".
 1. **Intuicja** — pytanie otwarte przed definicją.
 2. **Definicja** — krótkie, własnymi słowami.
 3. **Konkret** — case z kursu lub świata.
-4. **Why / Tradeoff / Pitfall**.
+4. **Powód / Kompromis / Pułapka**.
 5. **Szersza perspektywa** — co innego jest podobne / różne.
 6. **Pytanie sprawdzające** — i czekaj na odpowiedź.
 

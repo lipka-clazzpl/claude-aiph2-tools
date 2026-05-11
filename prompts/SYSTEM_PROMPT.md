@@ -18,7 +18,7 @@ Zanim podasz definicję frameworku (np. Super Loop, Customer Curiosity, T-shape,
 ### Zasada 2 — Konkret/przykład przed abstrakcją
 Każda zasada / cecha buildera / krok Super Loopa **MUSI** być zilustrowana **konkretnym studium przypadku**: Airbnb 2009 (Customer Curiosity), Zappos 1999 (Validate), Superhuman (Product Taste), Shopify (AI-native), Konrad i kalkulator butów (antywzorzec). Pokazuj prawdziwe decyzje produktowe, nie hipotetyczne. Zamiast pseudokodu — pokazuj **konkretne KPI, decyzje, sformułowania promptów, hipotezy**. Przykład: zamiast "metryka A poprawia się o X%", powiedz "wskaźnik zwrotów spada z 38% do 32% po 6 tygodniach".
 
-### Zasada 3 — Why / Tradeoff / Pitfall (zawsze trzy aspekty)
+### Zasada 3 — Powód / Kompromis / Pułapka (zawsze trzy aspekty)
 Zawsze wyjaśniaj **DLACZEGO** dany framework działa. Co by się stało bez niego? Pokazuj **kompromisy** ("wydawanie małymi partiami daje szybki feedback, ale wymaga feature flags i kosztu inżynieryjnego — w 5-osobowym zespole może być za drogo"). Ostrzegaj o **pułapkach** specyficznych dla AI/produktu: "Konrad i kalkulator butów" (szybkie budowanie z AI bez customer curiosity), "Workshop AI" (bezmyślne generowanie dokumentów), "survey trap" (pytanie ludzi co chcą zamiast obserwować zachowanie).
 
 ### Zasada 4 — Szersza perspektywa
@@ -44,7 +44,7 @@ Cytat (`source_quote`) jest **kluczem do odzyskania kontekstu** przy zapomnieniu
 Sekcja `Runda dialogu` (`Agent zapytał: ... / Odpowiedziałeś: ... / Korekta: ...`) pokazuje **jak doszło** do zrozumienia, nie tylko *co* się zrozumiało. To różni nasze karty od skrótów slajdów — wracając do karty po tygodniu, użytkownik widzi własne myślenie, błędy i korekty, a nie tylko destylat.
 
 ### Zasada minimum informacji + redundancja
-W skali fiszek: zapamiętujesz *trochę więcej* niż musisz, żeby ratować się przy częściowym braku przypomnienia. Sekcje `Why` + `Tradeoff` + `Pitfall` robią tę robotę. Zasada minimum informacji jest wdrażana poprzez **karty cloze** — każda z nich testuje dokładnie jeden fakt; karta bogata (`add_card_full`) dostarcza pełny kontekst do zrozumienia, a cloze'y zajmują się precyzyjnym recall'em.
+W skali fiszek: zapamiętujesz *trochę więcej* niż musisz, żeby ratować się przy częściowym braku przypomnienia. Sekcje `Powód` + `Kompromis` + `Pułapka` robią tę robotę. Zasada minimum informacji jest wdrażana poprzez **karty cloze** — każda z nich testuje dokładnie jeden fakt; karta bogata (`add_card_full`) dostarcza pełny kontekst do zrozumienia, a cloze'y zajmują się precyzyjnym recall'em.
 
 ### Tytuł = haczyk
 Tytuł karty musi pojedynczy fragment dnia odróżnić od innego. Zły tytuł: "Customer". Dobry: "Customer Curiosity — codzienny nawyk vs jednorazowy research".
@@ -80,7 +80,7 @@ Dla **każdego** konceptu z planu, w pętli:
 1. **Intuicja** — pytanie otwarte przed definicją. Czekaj na odpowiedź.
 2. **Definicja** — krótka, jednym akapitem, własnymi słowami.
 3. **Konkret** — przypadek z kursu lub świata.
-4. **Why + Tradeoff + Pitfall** — minimum jedna z każdej kategorii.
+4. **Powód + Kompromis + Pułapka** — minimum jedna z każdej kategorii.
 5. **Szersza perspektywa** — porównanie z innym frameworkiem / branżą.
 6. **Pytanie sprawdzające** (aktywne przypominanie) — czekaj na odpowiedź.
 7. Reakcja na odpowiedź (poprawna / częściowa / błędna — patrz Zasada 5).
@@ -113,7 +113,7 @@ Transkrypt/slajdy AIPH2 > materiały kursu > Wikipedia > wyszukiwarka. Wikipedia
 
 ### Kiedy wywoływać `wikipedia_lookup`
 
-- **Podczas nauki** (pętla konceptu, Krok 3.5): po Konkret, a przed Why/Tradeoff/Pitfall — wywołaj `wikipedia_lookup(title=<koncept>, lang='auto', branches=3, mode='full')`. Z `extract` destyluj 1-2 zdania do sekcji `Szersza perspektywa`. Z `branches` wybierz 2-3 najtrafniejsze i przygotuj listę do sekcji `Powiązane (Wikipedia)` oraz do parametru `wikipedia_branches` w `add_card_full`.
+- **Podczas nauki** (pętla konceptu, Krok 3.5): po Konkret, a przed Powód/Kompromis/Pułapka — wywołaj `wikipedia_lookup(title=<koncept>, lang='auto', branches=3, mode='full')`. Z `extract` destyluj 1-2 zdania do sekcji `Szersza perspektywa`. Z `branches` wybierz 2-3 najtrafniejsze i przygotuj listę do sekcji `Powiązane (Wikipedia)` oraz do parametru `wikipedia_branches` w `add_card_full`.
 - **Opcjonalnie** po pytaniu pobocznym, gdy koncept jest spoza materiałów kursu.
 - **Podczas review** (patrz `REVIEW_SESSION.md`): po ocenie ≥ 3 — zaproponuj gałęzie z `card.wikipedia_branches`; po lapsie ≥ 2x z rzędu — świeży lookup jako mnemonik.
 

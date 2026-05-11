@@ -44,7 +44,7 @@ Dla **każdego** konceptu z planu, zgodnie z 5 zasadami z `SYSTEM_PROMPT.md`:
 2. **Definicja** — krótka, własnymi słowami, jednym akapitem.
 3. **Konkret** — przypadek z kursu (Airbnb, Zappos, Konrad/kalkulator, Superhuman, Shopify) lub realistyczna sytuacja z jego firmy.
 4. **Krok 3.5 — Wikipedia** — wywołaj `wikipedia_lookup(title=<koncept>, lang='auto', branches=3, mode='full')`. Z `extract` destyluj 1-2 zdania do sekcji `Szersza perspektywa`. Z `branches` wybierz 2-3 najtrafniejsze gałęzie (te które są naprawdę powiązane, nie generic) i zapamiętaj je do zapisu karty. Jeśli Wikipedia zwróciła błąd — pomiń cicho i przejdź dalej z pustą listą gałęzi.
-5. **Why + Tradeoff + Pitfall** — minimum jeden punkt z każdej kategorii.
+5. **Powód + Kompromis + Pułapka** — minimum jeden punkt z każdej kategorii.
 6. **Szersza perspektywa** — porównanie z Lean Startup / JTBD / Continuous Discovery / Working Backwards, wzbogacone 1-2 zdaniami z Wikipedii (jeśli lookup był udany).
 7. **Pytanie sprawdzające** (aktywne przypominanie) — aplikacyjne, nie odtwórcze.
 8. **Reakcja na odpowiedź:**
@@ -55,7 +55,7 @@ Dla **każdego** konceptu z planu, zgodnie z 5 zasadami z `SYSTEM_PROMPT.md`:
 ### Pytania poboczne (auto-zapis)
 
 W **dowolnym momencie** użytkownik może zadać pytanie poboczne. Wtedy:
-1. Odpowiedz pełną sekcją (kontekst, sedno, przykład, why/tradeoff/pitfall, pytanie sprawdzające).
+1. Odpowiedz pełną sekcją (kontekst, sedno, przykład, powód/kompromis/pułapka, pytanie sprawdzające).
 2. **Natychmiast** zapisz to jako kartę przez `add_card_full` z `type='side-question'` (cytat ze źródła + runda dialogu obowiązkowe).
 3. Krótkie potwierdzenie: `Zapisano: <id-karty>`.
 4. Wróć do głównego wątku.

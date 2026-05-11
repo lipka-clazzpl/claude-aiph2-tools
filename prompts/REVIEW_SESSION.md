@@ -26,7 +26,7 @@ Pokaż **TYLKO**:
 - `Cytat źródłowy` — sekcja `source_quote` (pełna, dosłowna)
 - `Pytanie sprawdzające` — sekcja `pytanie_sprawdzajace`
 
-**NIE pokazuj** `Sedno`, `Konkret`, `Why/Tradeoff/Pitfall`, `Korekta z rundy dialogu`, `Element review` — to jest TYŁ karty.
+**NIE pokazuj** `Sedno`, `Konkret`, `Dlaczego` (Powód/Kompromis/Pułapka), `Korekta z rundy dialogu`, `Element review` — to jest TYŁ karty.
 
 Format:
 

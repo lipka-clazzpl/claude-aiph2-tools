@@ -23,7 +23,7 @@ _HEADING_TO_FIELD: dict[str, str] = {
     "Konkret / Przykład": "konkret",
     "Cytat źródłowy": "source_quote",
     "Runda dialogu": "runda_dialogu",
-    "Dlaczego (Why + Tradeoffs + Pitfalls)": "why_tradeoff_pitfall",
+    "Dlaczego": "why_tradeoff_pitfall",
     "Szersza perspektywa": "szersza_perspektywa",
     "Pytanie sprawdzające (active recall)": "pytanie_sprawdzajace",
     "Element review (na następną powtórkę)": "element_review",
@@ -83,7 +83,7 @@ def build_body(rc: RoundCard) -> str:
     parts.append("\n## Runda dialogu")
     parts.append(_render(rc.runda_dialogu, "runda_dialogu"))
 
-    parts.append("\n## Dlaczego (Why + Tradeoffs + Pitfalls)")
+    parts.append("\n## Dlaczego")
     parts.append(_render(rc.why_tradeoff_pitfall, "why_tradeoff_pitfall"))
 
     parts.append("\n## Szersza perspektywa")
@@ -155,7 +155,7 @@ def parse_body(text: str) -> dict:
 
 def build_cloze_body(cc: "ClozeCard") -> str:
     """Minimalistyczne body: tylko Pytanie / Odpowiedź / link do rodzica.
-    NIE zawiera Sedno, Kontekst, Why ani żadnego tekstu z karty-rodzica.
+    NIE zawiera Sedno, Kontekst, Dlaczego ani żadnego tekstu z karty-rodzica.
     """
     return "\n".join([
         "## Pytanie",

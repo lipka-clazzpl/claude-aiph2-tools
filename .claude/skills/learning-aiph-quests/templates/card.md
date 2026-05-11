@@ -27,10 +27,10 @@ Co to faktycznie znaczy? Mała, atomowa porcja sensu (zasada 4 SuperMemo: minimu
 ## Konkret / Przykład
 Realny przykład z kursu lub świata: Airbnb 2009, Zappos 1999, Konrad i kalkulator butów, etc. Bez tego karta umrze przy pierwszej powtórce.
 
-## Dlaczego (Why + Tradeoffs + Pitfalls)
-- **Why:** dlaczego ta zasada/koncept w ogóle istnieje — jaki problem rozwiązuje
-- **Tradeoff:** co tracisz, jeśli to stosujesz; co tracisz, jeśli nie stosujesz
-- **Pitfall:** typowy błąd / antywzorzec / fałszywa interpretacja
+## Dlaczego
+- **Powód:** dlaczego ta zasada/koncept w ogóle istnieje — jaki problem rozwiązuje
+- **Kompromis:** co tracisz, jeśli to stosujesz; co tracisz, jeśli nie stosujesz
+- **Pułapka:** typowy błąd / antywzorzec / fałszywa interpretacja
 
 ## Szersza perspektywa
 Jak ten koncept wygląda w innym ekosystemie / firmie / branży? Co jest analogiczne? Co byłoby zupełnie różne?

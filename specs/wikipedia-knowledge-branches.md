@@ -138,7 +138,7 @@ Frontmatter: pole `wikipedia_branches` jako lista YAML. Indeks (sm2.export_index
 
 **SYSTEM_PROMPT.md** — nowa sekcja **§5a (przed obecną §6 "Profil zainteresowań")**: *"Wikipedia — kiedy i jak"*. Zawiera (a) policy (PL→EN, tylko `Szersza perspektywa` + `Powiązane`, nie zastępuje cytatu kursu), (b) trigger (po Kroku 4 w pętli, opcjonalnie po pytaniach pobocznych), (c) anti-pattern (cytowanie Wikipedii jako `source_quote` zamiast materiałów AIPH2 — błąd).
 
-**LEARN_QUEST.md** — w "Pętli nauczania konceptu" wstawić Krok **3.5 (Wikipedia)** między 3 (Konkret) a 4 (Why/Tradeoff/Pitfall): *"Wywołaj `wikipedia_lookup(title=<koncept>, mode='full')`. Z extract destyluj 1-2 zdania uzupełnienia do `Szersza perspektywa`. Z `branches` wybierz 2-3 najtrafniejsze (te które są naprawdę powiązane z konceptem, nie generic) i przygotuj listę dla `Powiązane (Wikipedia)`."* Plus: w "Krok 5 — Zapis karty" dodać `wikipedia_branches` do listy obowiązkowych argumentów (z możliwością pustej listy gdy Wikipedia nie miała hasła).
+**LEARN_QUEST.md** — w "Pętli nauczania konceptu" wstawić Krok **3.5 (Wikipedia)** między 3 (Konkret) a 4 (Powód/Kompromis/Pułapka): *"Wywołaj `wikipedia_lookup(title=<koncept>, mode='full')`. Z extract destyluj 1-2 zdania uzupełnienia do `Szersza perspektywa`. Z `branches` wybierz 2-3 najtrafniejsze (te które są naprawdę powiązane z konceptem, nie generic) i przygotuj listę dla `Powiązane (Wikipedia)`."* Plus: w "Krok 5 — Zapis karty" dodać `wikipedia_branches` do listy obowiązkowych argumentów (z możliwością pustej listy gdy Wikipedia nie miała hasła).
 
 **LEARN_FILE.md** — analogiczna wstawka, krótsza (delegacja do SYSTEM_PROMPT §5a).
 
@@ -307,7 +307,7 @@ Wykonujemy w kolejności. Po każdym zadaniu `TaskUpdate` na `completed`. Zadani
 - **Assigned To**: builder-prompts
 - **Agent Type**: general-purpose
 - **Parallel**: false
-- W "Pętla nauczania konceptu" wstawić Krok **3.5 — Wikipedia** między 3 (Konkret) a 4 (Why/Tradeoff/Pitfall). Treść: trigger + format wywołania + jak destylować wynik do `Szersza perspektywa` (1-2 zdania) i do `Powiązane (Wikipedia)` (2-3 najtrafniejsze gałęzie).
+- W "Pętla nauczania konceptu" wstawić Krok **3.5 — Wikipedia** między 3 (Konkret) a 4 (Powód/Kompromis/Pułapka). Treść: trigger + format wywołania + jak destylować wynik do `Szersza perspektywa` (1-2 zdania) i do `Powiązane (Wikipedia)` (2-3 najtrafniejsze gałęzie).
 - W Kroku 5 (Zapis karty) — dorzucić `wikipedia_branches` do listy argumentów (z możliwością pustej listy `'[]'` gdy Wikipedia nie miała hasła).
 
 ### 9. Prompts — LEARN_FILE

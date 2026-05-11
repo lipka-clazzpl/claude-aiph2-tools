@@ -79,7 +79,7 @@ Dla **każdego** konceptu z planu, w pętli:
 3. **Definicja** — krótka, jednym akapitem, z przykładem.
 4. **Konkret z kursu** — case study (Airbnb 2009, Zappos 1999, Konrad/kalkulator butów,
    Superhuman, Shopify, etc.). Bez konkretu nie idziemy dalej.
-5. **Why + Tradeoff + Pitfall** — minimum jedna z każdej kategorii.
+5. **Powód + Kompromis + Pułapka** — minimum jedna z każdej kategorii.
 6. **Szersza perspektywa** — porównanie z innym frameworkiem / branżą (Lean Startup, JTBD,
    Continuous Discovery).
 7. **Pytanie sprawdzające** — aplikacyjne, nie odtwórcze. Czekaj na odpowiedź.
@@ -93,7 +93,7 @@ Dla **każdego** konceptu z planu, w pętli:
 
 W **dowolnym momencie** użytkownik może zadać pytanie poboczne. Wtedy:
 
-1. Odpowiedz pełną sekcją (kontekst, sedno, przykład, why/tradeoff/pitfall, pytanie sprawdzające).
+1. Odpowiedz pełną sekcją (kontekst, sedno, przykład, powód/kompromis/pułapka, pytanie sprawdzające).
 2. **Natychmiast** zapisz tę odpowiedź jako kartę:
    ```bash
    uv run aiph2/.claude/skills/learning-aiph-quests/scripts/add_card.py \
@@ -110,7 +110,7 @@ W **dowolnym momencie** użytkownik może zadać pytanie poboczne. Wtedy:
 ### Krok 4 — Zapis karty (pełna sekcja)
 
 Każda karta = osobny plik markdown. Wygeneruj **body** wg `templates/card.md` (sekcje: Kontekst,
-Sedno, Konkret, Why+Tradeoff+Pitfall, Szersza perspektywa, Pytanie sprawdzające, Powiązane,
+Sedno, Konkret, Powód+Kompromis+Pułapka, Szersza perspektywa, Pytanie sprawdzające, Powiązane,
 Notatki własne). Następnie:
 
 ```bash
@@ -125,10 +125,10 @@ cat > /tmp/card-body.md <<'EOF'
 ## Konkret / Przykład
 ...
 
-## Dlaczego (Why + Tradeoffs + Pitfalls)
-- **Why:** ...
-- **Tradeoff:** ...
-- **Pitfall:** ...
+## Dlaczego
+- **Powód:** ...
+- **Kompromis:** ...
+- **Pułapka:** ...
 
 ## Szersza perspektywa
 ...
@@ -163,7 +163,7 @@ Po zakończeniu wszystkich konceptów dnia:
 Dla każdej karty due:
 1. Pokaż **tylko sekcję "Pytanie sprawdzające"** (ukryj odpowiedź).
 2. Czekaj na odpowiedź użytkownika.
-3. Pokaż całą kartę (sekcje: Sedno, Konkret, Why...).
+3. Pokaż całą kartę (sekcje: Sedno, Konkret, Dlaczego...).
 4. Zapytaj o ocenę 0-5 (skala SuperMemo, opisana w `scripts/review.py --help`).
 5. Zapisz: `uv run scripts/review.py --id <id> --grade <N> [--note "..."]`.
 
@@ -213,10 +213,10 @@ Asystent: Częściowo tak — ale jest jedno duże "ale". Nie chodzi o ankiety, 
           zdjęcia mieszkań. Odkrył korelację między jakością zdjęć a liczbą rezerwacji. Tego nie
           dałaby żadna ankieta.
 
-          Why: bez tego budujesz feature, który **deklaratywnie** wszyscy chcą, a nikt nie
+          Powód: bez tego budujesz feature, który **deklaratywnie** wszyscy chcą, a nikt nie
           używa.
-          Tradeoff: czas — zamiast zlecić researcherowi, robisz sam.
-          Pitfall: surveys = pseudo-customer-curiosity. Pytasz "co byś chciał?", dostajesz listę
+          Kompromis: czas — zamiast zlecić researcherowi, robisz sam.
+          Pułapka: surveys = pseudo-customer-curiosity. Pytasz "co byś chciał?", dostajesz listę
           życzeń bez pokrycia w zachowaniu.
 
           Perspektywa: Continuous Discovery (Teresa Torres) zakłada cotygodniowy kontakt z

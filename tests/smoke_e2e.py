@@ -83,7 +83,7 @@ def _full_payload(title: str = "Test card title") -> dict:
         "kontekst": "Kontekst testowy: rozważamy scenariusz X.",
         "sedno": "Sedno: kluczowa idea sprowadza się do Y.",
         "konkret": "Konkret: w przypadku firmy A wskaźnik spadł z 38% do 32%.",
-        "why_tradeoff_pitfall": "Why: bo Z. Tradeoff: koszt P. Pitfall: pomijanie sygnału S.",
+        "why_tradeoff_pitfall": "Powód: bo Z. Kompromis: koszt P. Pułapka: pomijanie sygnału S.",
         "szersza_perspektywa": "W Lean Startup byłoby to nazywane 'pivot'.",
         "runda_dialogu": "**Agent zapytał:** co to jest? **Odpowiedziałeś:** to A. **Korekta:** raczej B.",
         "pytanie_sprawdzajace": "Jak rozpoznasz, że twój zespół zaniedbuje krok X?",
